@@ -105,3 +105,19 @@ export const updateNote: RequestHandler<
         next(error);
     }
 };
+
+export const deleteNote: RequestHandler = async (req, res, next) => {
+    const id = req.params.id;
+
+    try {
+        if (!mongoose.isValidObjectId(id)) {
+            throw createHttpError(400, "Invalid note id");
+        }
+
+        await NoteModel.findByIdAndDelete(id);
+
+        res.sendStatus(204);
+    } catch (error) {
+        next(error);
+    }
+};
