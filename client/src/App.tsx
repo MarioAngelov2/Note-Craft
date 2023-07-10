@@ -14,10 +14,10 @@ function App() {
     useEffect(() => {
         async function loadNotes() {
             try {
-                const response = await NotesApi.fetchNotes()
-                setNotes(response)
+                const response = await NotesApi.fetchNotes();
+                setNotes(response);
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
         }
         loadNotes();
@@ -36,7 +36,13 @@ function App() {
                 ))}
             </Row>
             {showAddNoteDialog && (
-                <CreateNote onClose={() => setShowAddNoteDialog(false)} />
+                <CreateNote
+                    onClose={() => setShowAddNoteDialog(false)}
+                    onNoteSaved={(newNote) => {
+                        setNotes([...notes, newNote]);
+                        setShowAddNoteDialog(false);
+                    }}
+                />
             )}
         </Container>
     );
