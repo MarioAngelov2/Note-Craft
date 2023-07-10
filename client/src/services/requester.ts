@@ -40,3 +40,14 @@ export async function deleteNote(id: string) {
         method: "DELETE",
     });
 }
+
+export async function updateNote(id: string, note: NoteInput): Promise<Note> {
+    const response = await fetchData(URL + id, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(note),
+    });
+    return response.json();
+}

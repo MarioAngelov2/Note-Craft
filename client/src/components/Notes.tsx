@@ -7,12 +7,18 @@ import styleUtils from "../styles/utils.module.css";
 import * as NoteApi from "../services/requester";
 
 export interface NotesProps {
+    onNoteClicked: (note: NoteModel) => void;
     note: NoteModel;
     onDeleteNote: (note: NoteModel) => void;
     className?: string;
 }
 
-export function Notes({ note, className, onDeleteNote }: NotesProps) {
+export function Notes({
+    note,
+    onNoteClicked,
+    className,
+    onDeleteNote,
+}: NotesProps) {
     const { title, text, _id, createdAt, updatedAt } = note;
 
     let createdUpdatedText: string;
@@ -23,7 +29,10 @@ export function Notes({ note, className, onDeleteNote }: NotesProps) {
     }
 
     return (
-        <Card className={`${styles.noteCard} ${className}`}>
+        <Card
+            className={`${styles.noteCard} ${className}`}
+            onClick={() => onNoteClicked(note)}
+        >
             <Card.Body className={styles.cardBody}>
                 <Card.Title className={styleUtils.flexCenter}>
                     {title}{" "}

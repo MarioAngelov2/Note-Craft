@@ -6,12 +6,13 @@ import { Notes } from "./components/Notes";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import styles from "./styles/NotesPage.module.css";
 import stylesUtils from "./styles/utils.module.css";
-import { CreateNote } from "./components/CreateNote";
+import { AddEditNoteDialog } from "./components/CreateEditNote";
 import { FaPlus } from "react-icons/fa";
 
 function App() {
     const [notes, setNotes] = useState<NoteMotel[]>([]);
     const [showAddNoteDialog, setShowAddNoteDialog] = useState(false);
+    const [noteToEdit, setNoteToEdit] = useState<NoteMotel | null>(null);
 
     useEffect(() => {
         async function loadNotes() {
@@ -52,16 +53,33 @@ function App() {
                             note={note}
                             className={styles.note}
                             onDeleteNote={deleteNote}
+                            onNoteClicked={setNoteToEdit}
                         />
                     </Col>
                 ))}
             </Row>
             {showAddNoteDialog && (
-                <CreateNote
+                <AddEditNoteDialog
                     onClose={() => setShowAddNoteDialog(false)}
                     onNoteSaved={(newNote) => {
                         setNotes([...notes, newNote]);
                         setShowAddNoteDialog(false);
+                    }}
+                />
+            )}
+            {noteToEdit && (
+                <AddEditNoteDialog
+                    noteToEdit={noteToEdit}
+                    onClose={() => setNoteToEdit(null)}
+                    onNoteSaved={(updatedNote) => {
+                        setNotes(
+                            notes.map((existingNote) =>
+                                existingNote._id === updatedNote._id
+                                    ? updatedNote
+                                    : existingNote
+                            )
+                        );
+                        setNoteToEdit(null);
                     }}
                 />
             )}

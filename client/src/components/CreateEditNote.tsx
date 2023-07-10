@@ -4,22 +4,38 @@ import { useForm } from "react-hook-form";
 import { NoteInput } from "../services/requester";
 import * as NotesApi from "../services/requester";
 
-interface AddNoteDialogProps {
+interface AddEditNoteDialogProps {
+    noteToEdit?: Note;
     onClose: () => void;
     onNoteSaved: (note: Note) => void;
 }
 
-export function CreateNote({ onClose, onNoteSaved }: AddNoteDialogProps) {
+export function AddEditNoteDialog({
+    noteToEdit,
+    onClose,
+    onNoteSaved,
+}: AddEditNoteDialogProps) {
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<NoteInput>();
+    } = useForm<NoteInput>({
+        defaultValues: {
+            title: noteToEdit?.title || "",
+            text: noteToEdit?.text || "",
+        },
+    });
 
     async function onSubmit(input: NoteInput) {
         try {
-            const noteResponsee = await NotesApi.createNote(input);
-            onNoteSaved(noteResponsee);
+            let noteResponse: Note;
+            if (noteToEdit) {
+                noteResponse = await NotesApi.updateNote(noteToEdit._id, input);
+            } else {
+                noteResponse = await NotesApi.createNote(input);
+            }
+
+            onNoteSaved(noteResponse);
         } catch (error) {
             console.error(error);
         }
@@ -28,11 +44,13 @@ export function CreateNote({ onClose, onNoteSaved }: AddNoteDialogProps) {
     return (
         <Modal show onHide={onClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Add Note</Modal.Title>
+                <Modal.Title>
+                    {noteToEdit ? "Edit note" : "Add note"}
+                </Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
-                <Form id="addNoteForm" onSubmit={handleSubmit(onSubmit)}>
+                <Form id="addEditNoteForm" onSubmit={handleSubmit(onSubmit)}>
                     <Form.Group className="mb-3">
                         <Form.Label>Title</Form.Label>
                         <Form.Control
@@ -59,7 +77,7 @@ export function CreateNote({ onClose, onNoteSaved }: AddNoteDialogProps) {
             <Modal.Footer>
                 <Button
                     type="submit"
-                    form="addNoteForm"
+                    form="addEditNoteForm"
                     disabled={isSubmitting}
                 >
                     Save
