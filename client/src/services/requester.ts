@@ -25,13 +25,18 @@ export interface NoteInput {
 }
 
 export async function createNote(note: NoteInput): Promise<Note> {
-    const response = await fetchData(URL, 
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(note),
-        })
-        return response.json();
+    const response = await fetchData(URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(note),
+    });
+    return response.json();
+}
+
+export async function deleteNote(id: string) {
+    await fetchData(URL + id, {
+        method: "DELETE",
+    });
 }
