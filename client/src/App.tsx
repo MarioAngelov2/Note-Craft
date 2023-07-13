@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Note as NoteMotel } from "./models/note";
 import * as NotesApi from "./services/requester";
 import { Notes } from "./components/Notes";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
 import styles from "./styles/NotesPage.module.css";
 import stylesUtils from "./styles/utils.module.css";
 import { AddEditNoteDialog } from "./components/CreateEditNote";
@@ -11,16 +11,23 @@ import { FaPlus } from "react-icons/fa";
 
 function App() {
     const [notes, setNotes] = useState<NoteMotel[]>([]);
+    const [notesLoading, setNotesLoading] = useState(true);
+    const [showNotesLoadingError, setShowNotesLoadingError] = useState(false);
     const [showAddNoteDialog, setShowAddNoteDialog] = useState(false);
     const [noteToEdit, setNoteToEdit] = useState<NoteMotel | null>(null);
 
     useEffect(() => {
         async function loadNotes() {
             try {
+                setShowNotesLoadingError(false);
+                setNotesLoading(true);
                 const response = await NotesApi.fetchNotes();
                 setNotes(response);
             } catch (error) {
                 console.log(error);
+                setShowNotesLoadingError(true);
+            } finally {
+                setNotesLoading(false);
             }
         }
         loadNotes();
@@ -37,8 +44,23 @@ function App() {
         }
     }
 
+    const notesGrid = (
+        <Row xs={1} md={2} xl={3} xxl={4} className={`g-4 ${styles.noteGrid}`}>
+            {notes.map((note) => (
+                <Col key={note._id}>
+                    <Notes
+                        note={note}
+                        className={styles.note}
+                        onDeleteNote={deleteNote}
+                        onNoteClicked={setNoteToEdit}
+                    />
+                </Col>
+            ))}
+        </Row>
+    );
+
     return (
-        <Container fluid="xl">
+        <Container className={styles.notesPage}>
             <Button
                 className={`mb-4 mt-4 ${stylesUtils.blockCenter} ${stylesUtils.flexCenter}`}
                 onClick={() => setShowAddNoteDialog(true)}
@@ -46,18 +68,19 @@ function App() {
                 <FaPlus />
                 Add new note
             </Button>
-            <Row xs={1} md={2} xl={3} xxl={4} className="g-4">
-                {notes.map((note) => (
-                    <Col key={note._id}>
-                        <Notes
-                            note={note}
-                            className={styles.note}
-                            onDeleteNote={deleteNote}
-                            onNoteClicked={setNoteToEdit}
-                        />
-                    </Col>
-                ))}
-            </Row>
+            {notesLoading && <Spinner animation="border" variant="primary" />}
+            {showNotesLoadingError && (
+                <p>Something went wrong. Please refresh the page.</p>
+            )}
+            {!notesLoading && !showNotesLoadingError && (
+                <>
+                    {notes.length > 0 ? (
+                        notesGrid
+                    ) : (
+                        <p>Your don't have any notes yet.</p>
+                    )}
+                </>
+            )}
             {showAddNoteDialog && (
                 <AddEditNoteDialog
                     onClose={() => setShowAddNoteDialog(false)}

@@ -7,8 +7,8 @@ import styleUtils from "../styles/utils.module.css";
 import * as NoteApi from "../services/requester";
 
 export interface NotesProps {
-    onNoteClicked: (note: NoteModel) => void;
     note: NoteModel;
+    onNoteClicked: (note: NoteModel) => void;
     onDeleteNote: (note: NoteModel) => void;
     className?: string;
 }
@@ -35,7 +35,7 @@ export function Notes({
         >
             <Card.Body className={styles.cardBody}>
                 <Card.Title className={styleUtils.flexCenter}>
-                    {title}{" "}
+                    {title}
                     <MdDelete
                         onClick={(e: any) => {
                             onDeleteNote(note);
